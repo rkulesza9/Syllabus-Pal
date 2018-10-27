@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SyllabusPal</string>
+    <string name="title_activity_course_edit">CourseEditActivity</string>
+    <string name="title_activity_ass_edit">AssEditActivity</string>
+</resources>

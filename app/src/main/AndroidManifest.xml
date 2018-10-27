@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="illeagle99.syllabuspal">
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".CourseListActivity" />
+        <activity android:name=".CourseEditActivity" />
+        <activity android:name=".ColorsSettingsActivity" />
+        <activity android:name=".CourseOptionsActivity" />
+        <activity android:name=".AssListActivity" />
+        <activity android:name=".AssEditActivity" />
+        <activity android:name=".NotificationSettingsActivity" />
+
+        <receiver android:name=".NotificationHandlerReciever">
+            <intent-filter>
+
+                <!-- <action android:name="android.intent.action.BOOT_COMPLETED"></action> -->
+                <action android:name="android.intent.action.USER_PRESENT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".ThemeSelectionActivity" />
+        <activity android:name=".GraphActivity"></activity>
+    </application>
+
+</manifest>

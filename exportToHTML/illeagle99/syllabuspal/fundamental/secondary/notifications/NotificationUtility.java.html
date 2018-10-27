@@ -1,0 +1,200 @@
+<html>
+<head>
+<title>NotificationUtility.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: rgb(0,0,0); font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,0,128); font-weight: bold; }
+.s1 { color: rgb(0,0,0); }
+.s2 { color: rgb(128,128,128); font-style: italic; }
+.s3 { color: rgb(0,128,0); font-weight: bold; }
+.s4 { color: rgb(0,0,255); }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#C0C0C0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+NotificationUtility.java</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">package </span><span class="s1">illeagle99.syllabuspal.fundamental.secondary.notifications; 
+ 
+</span><span class="s0">import </span><span class="s1">android.app.NotificationManager; 
+</span><span class="s0">import </span><span class="s1">android.content.Context; 
+</span><span class="s0">import </span><span class="s1">android.support.v7.app.NotificationCompat; 
+ 
+</span><span class="s0">import </span><span class="s1">org.json.JSONObject; 
+ 
+</span><span class="s0">import </span><span class="s1">java.io.File; 
+</span><span class="s0">import </span><span class="s1">java.io.FileWriter; 
+</span><span class="s0">import </span><span class="s1">java.util.ArrayList; 
+</span><span class="s0">import </span><span class="s1">java.util.Scanner; 
+ 
+</span><span class="s0">import </span><span class="s1">illeagle99.syllabuspal.R; 
+</span><span class="s0">import </span><span class="s1">illeagle99.syllabuspal.fundamental.Assignment; 
+</span><span class="s0">import </span><span class="s1">illeagle99.syllabuspal.fundamental.Syllabus; 
+</span><span class="s0">import </span><span class="s1">illeagle99.syllabuspal.fundamental.secondary.StatusSettings; 
+ 
+</span><span class="s2">/** 
+ * Created by kules on 10/20/2016. 
+ */</span><span class="s1"> 
+ 
+</span><span class="s0">public class </span><span class="s1">NotificationUtility { 
+    </span><span class="s0">private static </span><span class="s1">File nfile = </span><span class="s0">null</span><span class="s1">; 
+ 
+    </span><span class="s0">public static void </span><span class="s1">setNFile(Context c){ 
+        </span><span class="s0">try </span><span class="s1">{ 
+            nfile = </span><span class="s0">new </span><span class="s1">File(c.getFilesDir() + File.separator + </span><span class="s3">&quot;nfile&quot;</span><span class="s1">); 
+            </span><span class="s0">boolean </span><span class="s1">isNewFile = nfile.createNewFile(); 
+            </span><span class="s0">if</span><span class="s1">(isNewFile) { 
+                FileWriter writer = </span><span class="s0">new </span><span class="s1">FileWriter(nfile); 
+                JSONObject json = </span><span class="s0">new </span><span class="s1">JSONObject(); 
+                json.put(</span><span class="s3">&quot;tag&quot;</span><span class="s1">, </span><span class="s0">false</span><span class="s1">); 
+                json.put(</span><span class="s3">&quot;update&quot;</span><span class="s1">, </span><span class="s0">false</span><span class="s1">); 
+                writer.write(json.toString()); 
+                writer.close(); 
+            } 
+ 
+ 
+        }</span><span class="s0">catch</span><span class="s1">(Exception e){ 
+            </span><span class="s2">//e.printStackTrace();</span><span class="s1"> 
+            System.out.println(</span><span class="s3">&quot;setNFile(context)&quot;</span><span class="s1">); 
+        } 
+    } 
+ 
+    </span><span class="s2">//start notification thread</span><span class="s1"> 
+    </span><span class="s0">public static void </span><span class="s1">startNThread(Context  context, ArrayList&lt;Assignment&gt; asses){ 
+        NotificationThread nThread = </span><span class="s0">new </span><span class="s1">NotificationThread(context,asses); 
+        nThread.start(); 
+    } 
+    </span><span class="s0">private static class </span><span class="s1">NotificationThread </span><span class="s0">extends </span><span class="s1">Thread { 
+        </span><span class="s0">private </span><span class="s1">ArrayList&lt;Assignment&gt; assignments; 
+        </span><span class="s0">private </span><span class="s1">Context context; 
+        </span><span class="s0">public </span><span class="s1">NotificationThread(Context context, ArrayList&lt;Assignment&gt; ass){ 
+            assignments = ass; 
+            </span><span class="s0">this</span><span class="s1">.context = context; 
+        } 
+ 
+        @Override 
+        </span><span class="s0">public void </span><span class="s1">run(){ 
+            </span><span class="s0">while</span><span class="s1">(</span><span class="s0">true</span><span class="s1">){ 
+                </span><span class="s0">for</span><span class="s1">(Assignment a : assignments){ 
+                    </span><span class="s0">if</span><span class="s1">(a.nSettings().timeToNotify()){ 
+                        makeAndSendNotification(context,a); 
+                    } 
+                } 
+            } 
+        } 
+    } 
+    </span><span class="s0">private static void </span><span class="s1">makeAndSendNotification(Context context,Assignment a){ 
+        NotificationCompat.Builder ncb = </span><span class="s0">new </span><span class="s1">NotificationCompat.Builder(context); 
+        ncb.setContentTitle(a.name()); 
+        setStatusText(a,ncb); 
+        ncb.setSmallIcon(R.drawable.ic_launcher); 
+ 
+        NotificationManager mNotificationManager = 
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE); 
+        mNotificationManager.notify(</span><span class="s4">0</span><span class="s1">, ncb.build()); 
+    } 
+    </span><span class="s0">private static void </span><span class="s1">setStatusText(Assignment a, NotificationCompat.Builder ncb){ 
+        String contentText = a.realStatus() == StatusSettings.NOT_STARTED ? </span><span class="s3">&quot;Not Started&quot; </span><span class="s1">: 
+                a.realStatus() == StatusSettings.IN_PROGRESS ? </span><span class="s3">&quot;In Progress&quot; </span><span class="s1">: 
+                        a.realStatus() == StatusSettings.COMPLETE ? </span><span class="s3">&quot;Complete&quot; </span><span class="s1">: 
+                                a.realStatus() == StatusSettings.RUN_OUT_OF_TIME ? </span><span class="s3">&quot;Running Out Of Time&quot; </span><span class="s1">: 
+                                        a.realStatus() == StatusSettings.RAN_OUT_OF_TIME ? </span><span class="s3">&quot;Ran Out Of Time&quot; </span><span class="s1">: 
+                                                </span><span class="s3">&quot;Not Started&quot;</span><span class="s1">; 
+        ncb.setContentText(contentText); 
+    } 
+ 
+    </span><span class="s2">// start update thread</span><span class="s1"> 
+    </span><span class="s0">public static void </span><span class="s1">startUpdateThread(Context context, Syllabus syllabus, ArrayList&lt;Assignment&gt; ass){ 
+        (</span><span class="s0">new </span><span class="s1">UpdateThread(context,syllabus,ass)).start(); 
+    } 
+    </span><span class="s0">private static class </span><span class="s1">UpdateThread </span><span class="s0">extends </span><span class="s1">Thread { 
+        </span><span class="s0">private </span><span class="s1">Context context; 
+        </span><span class="s0">private </span><span class="s1">Syllabus syllabus; 
+        </span><span class="s0">private </span><span class="s1">ArrayList&lt;Assignment&gt; assignments; 
+ 
+        </span><span class="s0">public </span><span class="s1">UpdateThread(Context c, Syllabus s, ArrayList&lt;Assignment&gt; a) { 
+            context = c; 
+            syllabus = s; 
+            assignments = a; 
+        } 
+ 
+        @Override 
+        </span><span class="s0">public void </span><span class="s1">run() { 
+            respond(); 
+            </span><span class="s0">if </span><span class="s1">(timeToUpdate()) { 
+                syllabus.reset(context); </span><span class="s2">// update syllabus</span><span class="s1"> 
+                </span><span class="s0">for</span><span class="s1">(</span><span class="s0">int </span><span class="s1">x = assignments.size()-</span><span class="s4">1</span><span class="s1">; x &gt;= </span><span class="s4">0</span><span class="s1">; x--) assignments.remove(x); </span><span class="s2">// remove all assignments in list</span><span class="s1"> 
+                syllabus.getAssesToNotify(assignments); </span><span class="s2">//refill list based on new assignments from syllabus</span><span class="s1"> 
+ 
+                writeJSON(</span><span class="s3">&quot;update&quot;</span><span class="s1">,</span><span class="s0">false</span><span class="s1">); 
+            } 
+        } 
+    } 
+    </span><span class="s0">private static void </span><span class="s1">respond(){ 
+        </span><span class="s0">if</span><span class="s1">(!isRunning(nfile)) writeJSON(</span><span class="s3">&quot;tag&quot;</span><span class="s1">,</span><span class="s0">false</span><span class="s1">); 
+    } 
+    </span><span class="s0">private static boolean </span><span class="s1">timeToUpdate(){ 
+        </span><span class="s0">return </span><span class="s1">getJSON(</span><span class="s3">&quot;update&quot;</span><span class="s1">); 
+    } 
+ 
+    </span><span class="s2">/* checks if notification thread is already running*/</span><span class="s1"> 
+    </span><span class="s0">public static boolean </span><span class="s1">nThreadIsRunning(){ 
+        writeJSON(</span><span class="s3">&quot;tag&quot;</span><span class="s1">,</span><span class="s0">true</span><span class="s1">); 
+        nowWeWait(</span><span class="s4">50</span><span class="s1">); 
+        </span><span class="s0">boolean </span><span class="s1">b = isRunning(nfile); 
+        </span><span class="s0">return </span><span class="s1">b; 
+    } 
+    </span><span class="s0">public static boolean </span><span class="s1">getJSON(String key){ 
+        </span><span class="s0">try</span><span class="s1">{ 
+            String content = getAllJSON(); 
+            JSONObject json = </span><span class="s0">new </span><span class="s1">JSONObject(content); 
+            </span><span class="s0">return </span><span class="s1">json.getBoolean(key); 
+        }</span><span class="s0">catch</span><span class="s1">(Exception e){ 
+            e.printStackTrace(); 
+            System.out.println(</span><span class="s3">&quot;getJSON(key)&quot;</span><span class="s1">); 
+            </span><span class="s0">return false</span><span class="s1">; 
+        } 
+    } 
+    </span><span class="s0">public static void </span><span class="s1">writeJSON(String key,</span><span class="s0">boolean </span><span class="s1">value){ 
+        </span><span class="s0">try </span><span class="s1">{ 
+            String str = getAllJSON(); 
+            FileWriter writer = </span><span class="s0">new </span><span class="s1">FileWriter(nfile); 
+            JSONObject json = str.equals(</span><span class="s3">&quot;&quot;</span><span class="s1">) ? </span><span class="s0">new </span><span class="s1">JSONObject() : </span><span class="s0">new </span><span class="s1">JSONObject(str); 
+            json.put(key,value); 
+            writer.write(json.toString()); 
+            writer.close(); 
+        }</span><span class="s0">catch</span><span class="s1">(Exception e){ 
+            e.printStackTrace(); 
+            System.out.println(</span><span class="s3">&quot;writeJSON(key,value)&quot;</span><span class="s1">); 
+        } 
+    } 
+    </span><span class="s0">public static </span><span class="s1">String getAllJSON(){ 
+        </span><span class="s0">try</span><span class="s1">{ 
+            Scanner reader = </span><span class="s0">new </span><span class="s1">Scanner(nfile); 
+            String content = </span><span class="s3">&quot;&quot;</span><span class="s1">; 
+            </span><span class="s0">while</span><span class="s1">(reader.hasNext()) content += reader.next()+</span><span class="s3">&quot; &quot;</span><span class="s1">; 
+            reader.close(); 
+            </span><span class="s0">return </span><span class="s1">content; 
+        }</span><span class="s0">catch</span><span class="s1">(Exception e){ 
+            System.out.println(</span><span class="s3">&quot;getAllJSON&quot;</span><span class="s1">); 
+            </span><span class="s0">return null</span><span class="s1">; 
+        } 
+    } 
+    </span><span class="s0">private static boolean </span><span class="s1">isRunning(File file){ 
+        </span><span class="s0">return </span><span class="s1">!getJSON(</span><span class="s3">&quot;tag&quot;</span><span class="s1">); 
+    } 
+    </span><span class="s0">private static void </span><span class="s1">nowWeWait(</span><span class="s0">long </span><span class="s1">wait){ 
+        </span><span class="s2">/* wait arbitrary amount of time (in the ms - 50ms?) */</span><span class="s1"> 
+        </span><span class="s0">long </span><span class="s1">wStart = System.currentTimeMillis(); 
+        </span><span class="s0">while</span><span class="s1">(System.currentTimeMillis() - wStart &lt; wait){} 
+    } 
+ 
+ 
+} 
+</span></pre>
+</body>
+</html>
